@@ -3,6 +3,8 @@ import os
 import io
 import re
 import time
+from os import listdir
+from os.path import isfile, isdir, join
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 from httplib2 import Http
@@ -13,16 +15,16 @@ from oauth2client import file, client, tools
 
 
 
-def name_restting(name):
+def name_restting(rename):
     cut = " - PressPlay 訂閱學習，時刻精進"
-    name="24. 因時制宜：不同產品階段，運營側重點不同 - PressPlay 訂閱學習，時刻精進.pdf"
-    name2="15 財務知識｜【大師選讀】張忠謀談企業經營三大財務關鍵指標 - PressPlay 訂閱學習，時刻精進.pdf"
-    rename = re.sub(cut,'',name2)
-    rename = re.sub("｜",'|',rename)
-    rename = re.sub("【",'[',rename)
-    rename = re.sub("】",']',rename)
-
-    print (rename)
+    name = re.sub(cut,'',rename)
+    name = re.sub("｜",'|',name)
+    name = re.sub("【",'[',name)
+    name = re.sub("】",']',name)
+    name = re.sub("\.", " ", name)
+    name = name.split()
+    rename=name[0]+"."+name[1]+"."+name[2]
+    return rename
 
 def delete_drive_service_file(service, file_id):
     service.files().delete(fileId=file_id).execute()
@@ -117,8 +119,21 @@ def main(is_update_file_function=False, update_drive_service_name=None, update_f
     :param update_drive_service_name: 要上傳到雲端上的檔案名稱
     :param update_file_path: 要上傳檔案的位置以及名稱
     """
-    name_restting(name="AAA")
-    return 0
+    name="24. 因時制宜：不同產品階段，運營側重點不同 - PressPlay 訂閱學習，時刻精進.pdf"
+    name=name_restting(name)
+    print ("AAA="+name)
+    exit (0) 
+    mypath="~/Download/Fireshot/150_copy/"
+    files = listdir(mypath)
+
+    # 以迴圈處理
+    for file in files:
+        # 產生檔案的絕對路徑
+        fullpath = join(mypath, file)
+        # fullpath 是檔案
+        if isfile(fullpath):
+            name_restting(file)
+            os.rename('a.txt', 'b.kml')
 
     print("is_update_file_function")
     print(type(is_update_file_function))
