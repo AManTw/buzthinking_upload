@@ -11,7 +11,9 @@ import os
 import random
 import sys
 import time
-
+import re
+from os import listdir
+from os.path import isfile, isdir, join
 from apiclient.discovery import build as discovery_build
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
@@ -69,8 +71,7 @@ DEFAULT_MIMETYPE = 'application/octet-stream'
 
 def get_authenticated_service(scope):
   print ('Authenticating...')
-  flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, scope=scope,
-                                 message=MISSING_CLIENT_SECRETS_MESSAGE)
+  flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, scope=scope,message=MISSING_CLIENT_SECRETS_MESSAGE)
 
   credential_storage = CredentialStorage(CREDENTIALS_FILE)
   credentials = credential_storage.get()
@@ -109,8 +110,7 @@ def upload(filename,gc):
   media = MediaFileUpload(filename, chunksize=CHUNKSIZE, resumable=True)
   if not media.mimetype():
     media = MediaFileUpload(filename, DEFAULT_MIMETYPE, resumable=True)
-  request = service.objects().insert(bucket=bucket_name, name=object_name,
-                                     media_body=media)
+  request = service.objects().insert(bucket=bucket_name, name=object_name, media_body=media)
 
   print ('Uploading file: %s to bucket: %s object: %s ' % (filename, bucket_name, object_name))
 
@@ -122,11 +122,11 @@ def upload(filename,gc):
       progress, response = request.next_chunk()
       if progress:
         print_with_carriage_return('Upload %d%%' % (100 * progress.progress()))
-    except HttpError, err:
+    except HttpError as err:
       error = err
       if err.resp.status < 500:
         raise
-    except RETRYABLE_ERRORS, err:
+    except RETRYABLE_ERRORS as err:
       error = err
 
     if error:
@@ -175,12 +175,10 @@ def main():
             name=name_restting(filePDF)
             new_fullpath = join(mypath,name)
             os.rename(fullpath, new_fullpath)
-
-            if is_update_file_function is True:
-                print("=====執行上傳檔案=====")
-                update_file(filename=new_fullpath, gc="gs://bucket/object")
-                print("=====上傳檔案完成=====")
-                exit(0)
+            print("=====執行上傳檔案=====")
+            upload(filename=new_fullpath, gc="gs://bucket/object")
+            print("=====上傳檔案完成=====")
+            exit(0)
 
 
 if __name__ == '__main__':
