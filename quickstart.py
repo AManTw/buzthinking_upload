@@ -22,8 +22,18 @@ def name_restting(rename):
     name = re.sub("【",'[',name)
     name = re.sub("】",']',name)
     name = re.sub("\.", " ", name)
-    name = name.split()
-    rename=name[0]+"."+name[1]+"."+name[2]
+    name = name.split(" ")
+    for i in range(len(name)):
+        if i == 0 :
+            rename=name[i]
+            rename+='.'
+        elif i == len(name)-1:
+            rename+='.'
+            rename+=name[i]
+        else :
+            rename+=name[i]
+
+    print (rename)
     return rename
 
 def delete_drive_service_file(service, file_id):
@@ -119,11 +129,8 @@ def main(is_update_file_function=False, update_drive_service_name=None, update_f
     :param update_drive_service_name: 要上傳到雲端上的檔案名稱
     :param update_file_path: 要上傳檔案的位置以及名稱
     """
-    name="24. 因時制宜：不同產品階段，運營側重點不同 - PressPlay 訂閱學習，時刻精進.pdf"
-    name=name_restting(name)
-    print ("AAA="+name)
-    exit (0) 
-    mypath="~/Download/Fireshot/150_copy/"
+
+    mypath="/home/jerrychen/Downloads/FireShot/150_size"
     files = listdir(mypath)
 
     # 以迴圈處理
@@ -132,9 +139,10 @@ def main(is_update_file_function=False, update_drive_service_name=None, update_f
         fullpath = join(mypath, file)
         # fullpath 是檔案
         if isfile(fullpath):
-            name_restting(file)
-            os.rename('a.txt', 'b.kml')
-
+            name=name_restting(file)
+            new_fullpath = join(mypath,name)
+            os.rename(fullpath, new_fullpath)
+    exit (0)
     print("is_update_file_function")
     print(type(is_update_file_function))
     print(is_update_file_function)
