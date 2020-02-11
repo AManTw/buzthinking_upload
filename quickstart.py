@@ -11,7 +11,7 @@ from httplib2 import Http
 from oauth2client import file, client, tools
 
 # 權限必須
-#SCOPES = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+SCOPES = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 
 
 
@@ -83,9 +83,7 @@ def search_file(service, update_drive_service_name, is_delete_search_file=False)
                                    q="name = '" + update_drive_service_name + "' and trashed = false",
                                    ).execute()
     items = results.get('files', [])
-    if not items:
-        print('沒有發現你要找尋的 ' + update_drive_service_name + ' 檔案.')
-    else:
+    if items:
         print('搜尋的檔案: ')
         for item in items:
             times = 1
@@ -123,7 +121,7 @@ def trashed_file(service, is_delete_trashed_file=False):
                 delete_drive_service_file(service, file_id=item['id'])
 
 
-def main(is_update_file_function=False, update_drive_service_name=None, update_file_path=None):
+def main(is_update_file_function=False, update_file_path=None):
     """
     :param is_update_file_function: 判斷是否執行上傳的功能
     :param update_drive_service_name: 要上傳到雲端上的檔案名稱
@@ -132,47 +130,41 @@ def main(is_update_file_function=False, update_drive_service_name=None, update_f
 
     mypath="/home/jerrychen/Downloads/FireShot/150_size"
     files = listdir(mypath)
-
-    # 以迴圈處理
-    for file in files:
-        # 產生檔案的絕對路徑
-        fullpath = join(mypath, file)
-        # fullpath 是檔案
-        if isfile(fullpath):
-            name=name_restting(file)
-            new_fullpath = join(mypath,name)
-            os.rename(fullpath, new_fullpath)
-    exit (0)
-    print("is_update_file_function")
-    print(type(is_update_file_function))
-    print(is_update_file_function)
-
+    
     store = file.Storage('token.json')
     creds = store.get()
     if not creds or creds.invalid:
-        flow = client.flow_from_clientsecrets('credentials.json', SCOPES)
+        flow = client.flow_from_clientsecrets("/home/jerrychen/Downloads/FireShot/credentials.json", SCOPES)
         creds = tools.run_flow(flow, store)
     service = build('drive', 'v3', http=creds.authorize(Http()))
     print('*' * 10)
 
-    if is_update_file_function is True:
-        print(update_file_path + update_drive_service_name)
-        print("=====執行上傳檔案=====")
-        # 清空 雲端垃圾桶檔案
-        # trashed_file(service=service, is_delete_trashed_file=True)
+    # 以迴圈處理
+    for filePDF in files:
+        # 產生檔案的絕對路徑
+        fullpath = join(mypath, filePDF)
+        # fullpath 是檔案
+        if isfile(fullpath):
+            name=name_restting(filePDF)
+            new_fullpath = join(mypath,name)
+            os.rename(fullpath, new_fullpath)
 
-        # 搜尋要上傳的檔案名稱是否有在雲端上並且刪除
-        search_file(service=service, update_drive_service_name=update_drive_service_name,
-                    is_delete_search_file=True)
-        # 檔案上傳到雲端上
-        update_file(service=service, update_drive_service_name=update_drive_service_name,
-                    local_file_path=os.getcwd() + '/' + update_drive_service_name)
-        print("=====上傳檔案完成=====")
+            if is_update_file_function is True:
+                print(update_file_path)
+                print("=====執行上傳檔案=====")
+                # 清空 雲端垃圾桶檔案
+                # trashed_file(service=service, is_delete_trashed_file=True)
 
+                # 搜尋要上傳的檔案名稱是否有在雲端上並且刪除
+                search_file(service=service, update_drive_service_name=name,is_delete_search_file=True)
+                # 檔案上傳到雲端上
+                update_file(service=service, update_drive_service_name=name, local_file_path=new_fullpath)
+                print("=====上傳檔案完成=====")
+                exit(0)
 
 if __name__ == '__main__':
 
-    main(is_update_file_function=bool(True), update_drive_service_name='aaa.txt', update_file_path=os.getcwd() + '/')
+    main(is_update_file_function=bool(True), update_file_path=os.getcwd() + '/')
 
 
 
