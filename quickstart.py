@@ -58,7 +58,7 @@ def update_file(service, update_drive_service_name, local_file_path, update_driv
     file_id = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
     end = time.time()
     #print("上傳檔案成功！")
-    print('雲端檔案名稱為: ' + str(file_metadata['name']))
+    print('已上傳: ' + str(file_metadata['name']))
     #print('雲端檔案ID為: ' + str(file_id['id']))
     #print('檔案大小為: ' + str(file_metadata_size) + ' byte')
     #print("上傳時間為: " + str(end-start))
@@ -103,7 +103,12 @@ def search_file(service, update_drive_service_name, is_delete_search_file=False)
                                    ).execute()
     items = results.get('files', [])
     if not items:
-        print('沒有發現你要找尋的 ' + update_drive_service_name)
+        #print('沒有發現你要找尋的 ' + update_drive_service_name)
+        return 1
+    else:
+        print('...')
+        return 0
+'''    
     else:
         print('搜尋的檔案: ')
         for item in items:
@@ -117,7 +122,7 @@ def search_file(service, update_drive_service_name, is_delete_search_file=False)
                 return item['id']
             else:
                 times += 1
-
+'''
 
 def trashed_file(service, is_delete_trashed_file=False):
     """
@@ -159,9 +164,9 @@ def main():
         creds = tools.run_flow(flow, store)
     service = build('drive', 'v3', http=creds.authorize(Http()))
     print('*' * 10)
-    
+    get_folder_id = search_folder(service = service, update_drive_folder_name = folder)
     print("=====執行上傳檔案=====")
-    # 以迴圈處理
+
     for filePDF in files:
         # 產生檔案的絕對路徑
         fullpath = join(mypath, filePDF)
@@ -173,10 +178,10 @@ def main():
             # 清空 雲端垃圾桶檔案
             # trashed_file(service=service, is_delete_trashed_file=True)
             # 搜尋要上傳的檔案名稱是否有在雲端上並且刪除
-            get_folder_id = search_folder(service = service, update_drive_folder_name = folder)                 
-            search_file(service=service, update_drive_service_name=name,is_delete_search_file=True)
+            res=search_file(service=service, update_drive_service_name=name,is_delete_search_file=True)
             # 檔案上傳到雲端上
-            update_file(service, update_drive_service_name=name, local_file_path=new_fullpath, update_drive_service_folder_id=get_folder_id)
+            if res == 1 :
+                update_file(service, update_drive_service_name=name, local_file_path=new_fullpath, update_drive_service_folder_id=get_folder_id)
     print("=====上傳檔案完成=====")
 
 if __name__ == '__main__':
