@@ -13,7 +13,8 @@ from oauth2client import file, client, tools
 # 權限必須
 SCOPES = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 
-
+#https://shareboxnow.com/python-google-drive-1
+#https://developers.google.com/drive/api/v3/quickstart/python
 
 def name_restting(rename):
     cut = " - PressPlay 訂閱學習，時刻精進"
@@ -75,7 +76,7 @@ def search_folder(service, update_drive_folder_name=None):
     get_folder_id_list = []
     if update_drive_folder_name is not None:
         response = service.files().list(fields="nextPageToken, files(id, name)", spaces='drive',
-                                       q = "name = '" + update_drive_folder_name + "' and mimeType = 'application/vnd.google-apps.folder' and trashed = false").execute()
+        q = "name = '" + update_drive_folder_name + "' and mimeType = 'application/vnd.google-apps.folder' and trashed = false").execute()
         for file in response.get('files', []):
             # Process change
             #print('Found file: %s (%s)' % (file.get('name'), file.get('id')))
@@ -99,8 +100,7 @@ def search_file(service, update_drive_service_name, is_delete_search_file=False)
     """
     # Call the Drive v3 API
     results = service.files().list(fields="nextPageToken, files(id, name)", spaces='drive',
-                                   q="name = '" + update_drive_service_name + "' and trashed = false",
-                                   ).execute()
+                q="name = '" + update_drive_service_name + "' and trashed = false",).execute()
     items = results.get('files', [])
     if not items:
         #print('沒有發現你要找尋的 ' + update_drive_service_name)
@@ -157,10 +157,11 @@ def main():
     mypath="/home/jerrychen/Downloads/FireShot"
     files = listdir(mypath)
     folder="bussin_thinking"
-    store = file.Storage('token.json')
+    token=mypath+"/buzthinking_upload/"+"token.json"
+    store = file.Storage(token)
     creds = store.get()
     if not creds or creds.invalid:
-        flow = client.flow_from_clientsecrets("/home/jerrychen/Downloads/FireShot/credentials.json", SCOPES)
+        flow = client.flow_from_clientsecrets("/home/jerrychen/Downloads/FireShot/buzthinking_upload/credentials.json", SCOPES)
         creds = tools.run_flow(flow, store)
     service = build('drive', 'v3', http=creds.authorize(Http()))
     print('*' * 10)
