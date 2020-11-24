@@ -141,7 +141,8 @@ def upload(filename,gc):
   print (json_dumps(response, indent=2))
 
 def name_restting(rename):
-    cut = " - PressPlay 訂閱學習，時刻精進"
+    #cut = " - PressPlay 訂閱學習，時刻精進"
+    cut= "- PressPlay Academy 訂閱學習｜線上課程平台"
     name = re.sub(cut,'',rename)
     name = re.sub("｜",'|',name)
     name = re.sub("【",'[',name)
